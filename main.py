@@ -10,6 +10,8 @@ from scipy.integrate import solve_ivp  # noqa
 # NOTE: The dipole approximation asymptotes as the magnet passes through the coil.
 # This is not the case, so we enforce a minimum "distance"
 # This causes a discontinuity in the current graph
+# This has been fix in recent commit
+# However, this code will only be physically accurate with some volume based field numerical solution
 
 pi: float = np.pi
 u_0: float = (10**-7) * (4 * pi)
@@ -17,11 +19,11 @@ mass: float = 0.05  # kg
 m: float = 0.6  # dipole moment
 k: float = 10
 radius: float = 0.02  # Assume same radius for magnet coil
-r: float = 20  # ohms
+r: float = 40  # ohms
 N = 40  # number of coils
-L: float = 100 * u_0 * pi * radius**2 * N**2 / 0.01  # Inductance of the coil
-initial: np.ndarray = np.array([0.01, 0, 0])  # position, velocity, I
-runtime = 40
+L: float = u_0 * pi * radius**2 * N**2 / 0.01  # Inductance of the coil
+initial: np.ndarray = np.array([0.05, 0, 0])  # position, velocity, I
+runtime = 100
 dipole_threshold = 0.01  # where to stop the dipole asymptoting
 
 
