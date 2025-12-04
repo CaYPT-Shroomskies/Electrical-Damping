@@ -19,9 +19,9 @@ k: float = 10
 radius: float = 0.02  # Assume same radius for magnet coil
 r: float = 20  # ohms
 N = 40  # number of coils
-L: float = u_0 * pi * radius**2 * N**2 / 0.01  # Inductance of the coil
-initial: np.ndarray = np.array([0.05, 0, 0])  # position, velocity, I
-runtime = 1
+L: float = 100 * u_0 * pi * radius**2 * N**2 / 0.01  # Inductance of the coil
+initial: np.ndarray = np.array([0.01, 0, 0])  # position, velocity, I
+runtime = 40
 dipole_threshold = 0.01  # where to stop the dipole asymptoting
 
 
@@ -34,16 +34,24 @@ def step(t, state):
         * m
         * x_dot
         * 3
-        / max(x, dipole_threshold) ** 4
+        * np.sign(x)
+        / np.sqrt(x**2 + dipole_threshold**2) ** 4
     )
+
     # emf is dPhi
     m_coil = I * N * pi * radius**2
-    print(m_coil)
-    F_b = (10**-7) * 6 * m_coil * m / max(x, dipole_threshold) ** 4
+    F_b = (
+        (10**-7)
+        * np.sign(x)
+        * 6
+        * m_coil
+        * m
+        / np.sqrt(x**2 + dipole_threshold**2) ** 4
+    )
     return np.array([x_dot, -(k * x + F_b) / m, (V - I * r) / L])
 
 
-time_array = np.linspace(0, runtime, int(runtime * 120))
+time_array = np.linspace(0, runtime, int(runtime * 1000))
 returned = solve_ivp(
     step,
     [0, runtime],
